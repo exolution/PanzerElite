@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <script type="text/javascript" src="tank.js"></script>
+    <title>虎式精英</title>
+    <style type="text/css">
+        body{
+            -webkit-transform:scale(0.3);
+        }
+        #outbox {
+            position: absolute;
+            left: 200px;
+            top: 200px;
+        }
+
+        #tank-body {
+            background: url(tank-body.png);
+            width: 375px;
+            height: 221px;
+        }
+
+        #tank-top {
+            width: 604px;
+            height: 167px;
+            left: -119px;
+            top: 25px;
+        }
+
+        #tank-turret {
+            background: url(tank-turret.png);
+            position: absolute;
+            width: 192px;
+            height: 167px;
+            left: 216px;
+        }
+
+        #tank-barrel {
+            position: absolute;
+            background: url(tank-barrel.png);
+            width: 217px;
+            height: 28px;
+            top: 64px;
+        }
+
+        .barrel-fire {
+            -webkit-animation-name: fire;
+            -webkit-animation-duration: 1.2s;
+            -webkit-animation-iteration-count: 1;
+            -webkit-animation-timing-function: ease-in-out;
+        }
+
+        .sprite {
+            position: absolute;
+        }
+
+            /* .sprite:hover{
+                 -webkit-transform:rotate(360deg) scale(1);
+                 transition:5s;
+             }*/
+        @-webkit-keyframes fire {
+            0% {
+                -webkit-transform: scale(1, 1);
+            }
+            15% {
+                -webkit-transform: scale(0.8, 1);
+                left: 21px;
+            }
+            100% {
+                -webkit-transform: scale(1, 1);
+            }
+        }
+
+        #lcd {
+           border:2px deepskyblue inset;
+           float:left;
+            padding:15px;
+        }
+
+        #fireFlame {
+            background: url(fire.png) no-repeat -302px -381px;
+            -webkit-transform:rotate(-15deg);
+            width: 151px;
+            height: 127px;
+            left:-120px;
+            top:35px;
+            position: absolute;
+            -webkit-transform: rotate(-103deg);
+        }
+
+
+    </style>
+</head>
+<body style="overflow: hidden;">
+<div id="lcd">
+    虎式精英 一个出自德棍之手的游戏demo<br>
+    目前只展示 行走系统和开火效果。<br>
+    W：前进 S：后退 A：左转 D：右转<br>
+    J：左转炮塔 L：右转炮塔 K：开火
+</div>
+
+<!--<div id="outbox">
+    <div class="sprite" id="tank-body"></div>
+    <div class="sprite" id="tank-top">
+        <div id="tank-turret"></div>
+        <div id="tank-barrel"></div>
+        <div id='fireFlame'></div>
+    </div>
+</div>-->
+
+
+</body>
+</html>
+
