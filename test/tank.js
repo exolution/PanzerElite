@@ -11,7 +11,8 @@ window.onload = function () {
                 top = document.createElement('div'),
                 turret = document.createElement('div'),
                 barrel = document.createElement('div'),
-                fireFlame = document.createElement('div');
+                fireFlame = document.createElement('div'),
+                aimField=document.createElement('div');
             body.id = "tank-body";
             body.className = "sprite";
             top.id = "tank-top";
@@ -19,17 +20,19 @@ window.onload = function () {
             barrel.id = "tank-barrel";
             turret.id = "tank-turret";
             fireFlame.id = 'fireFlame';
+            aimField.id='aimField';
             top.appendChild(turret);
             top.appendChild(barrel);
             top.appendChild(fireFlame);
+            top.appendChild(aimField);
             this.tankEl = {
                 body: body,
                 top: top,
                 barrel: barrel,
                 turret: turret
             };
-            document.body.appendChild(body);
-            document.body.appendChild(top);
+            document.getElementById('mainContainer').appendChild(body);
+            document.getElementById('mainContainer').appendChild(top);
             this.x = x || 0;
             this.y = y || 0;
             this.angle = 180;
@@ -40,8 +43,8 @@ window.onload = function () {
             this.angle_add = 0;
             this.turretAngle_add = 0;
             this.velocity = 0;
-            this.maxForwardVelocity = 200;
-            this.maxForwardAcl = 0.2;
+            this.maxForwardVelocity = 400;
+            this.maxForwardAcl = 0.5;
             this.maxBackVelocity = -100;
             this.maxBackAcl = -0.1;
             this.turnVelocity = 0;
@@ -232,13 +235,16 @@ window.onload = function () {
         if (!keyState[event.keyCode]) {
             switch (event.keyCode) {
                 case 75:
-                    var barrel = document.getElementById('tank-barrel');
+                    var barrel = document.getElementById('tank-barrel'),
+                        aimField=document.getElementById('aimField');
+                    aimField.style.display='none';
                     if (barrel.className == '') {
                         barrel.className = 'barrel-fire';
                         timeLine.addFrame(fireFlameFrame);
                         setTimeout(function () {
                             barrel.className = '';
-                        }, 1000);
+                            aimField.style.display='block';
+                        }, 3000);
                     }
                     break;
                 case 87:
@@ -262,7 +268,7 @@ window.onload = function () {
                     break;
                 case 68:
                     // myTank.velocity = myTank.maxForwardVelocity;
-                    myTank.turnVelocity = 10;
+                    myTank.turnVelocity = 40;
                     timeLine.addFrame(TankMoveFrame);
                     keyState[event.keyCode] = 1;
                     break;
@@ -273,7 +279,7 @@ window.onload = function () {
                     keyState[event.keyCode] = 1;
                     break;
                 case 76:
-                    myTank.turretTurnVelocity = 20;
+                    myTank.turretTurnVelocity = 50;
                     // myTank.velocity = myTank.maxForwardVelocity;
                     timeLine.addFrame(TankMoveFrame);
                     keyState[event.keyCode] = 1;
@@ -282,6 +288,7 @@ window.onload = function () {
             }
         }
     };
+    new Tank(200,300);
     document.onkeyup = function (evt) {
         var event = evt || window.event;
         if (keyState[event.keyCode] == 1) {
@@ -326,6 +333,29 @@ window.onload = function () {
                     keyState[event.keyCode] = 0;
                     break;
             }
+        }
+    }
+    var mouseDelta=0;
+    var systemScale=1;
+    window.onmousewheel=document.onmousewheel=function(evt){
+        if(evt.wheelDelta>0){
+            if(systemScale<1){
+                systemScale+=0.02;
+            }
+            else {
+                systemScale=1;
+            }
+            document.getElementById('mainContainer').style.cssText='-webkit-transform:scale('+systemScale+');';
+        }
+        else if(evt.wheelDelta<0){
+            console.log(systemScale);
+            if(systemScale>0.4){
+                systemScale-=0.02;
+            }
+            else {
+                systemScale=0.4;
+            }
+            document.getElementById('mainContainer').style.cssText='-webkit-transform:scale('+systemScale+');';
         }
     }
 };

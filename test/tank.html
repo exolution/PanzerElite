@@ -6,7 +6,7 @@
     <title>虎式精英</title>
     <style type="text/css">
         body{
-            -webkit-transform:scale(0.3);
+            overflow: hidden;
         }
         #outbox {
             position: absolute;
@@ -53,6 +53,18 @@
         .sprite {
             position: absolute;
         }
+        #aimField{
+            display: inline-block;
+            border-top: transparent 30px solid;
+            border-bottom: transparent 30px solid;
+            width: 0px;
+            border-left: #A0C5E8 1400px solid;
+            height: 0px;
+            opacity: 0.4;
+            position: absolute;
+            left: -1250px;
+            top: 50px;
+        }
 
             /* .sprite:hover{
                  -webkit-transform:rotate(360deg) scale(1);
@@ -87,7 +99,10 @@
             position: absolute;
             -webkit-transform: rotate(-103deg);
         }
-
+        #mainContainer{
+            position:absolute;
+            style="overflow: hidden;
+        }
 
     </style>
 </head>
@@ -96,9 +111,10 @@
     虎式精英 一个出自德棍之手的游戏demo<br>
     目前只展示 行走系统和开火效果。<br>
     W：前进 S：后退 A：左转 D：右转<br>
-    J：左转炮塔 L：右转炮塔 K：开火
+    J：左转炮塔 L：右转炮塔 K：开火<br>
+    鼠标滚轮：缩放
 </div>
-
+<div id="mainContainer"></div>
 <!--<div id="outbox">
     <div class="sprite" id="tank-body"></div>
     <div class="sprite" id="tank-top">
