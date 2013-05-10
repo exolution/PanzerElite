@@ -5,6 +5,7 @@
  * Time: 下午5:09
  */
 window.onload = function () {
+
     function Tank(x, y) {
         if (!this.tankEl) {
             var body = document.createElement('div'),
