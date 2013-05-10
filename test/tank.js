@@ -95,14 +95,27 @@ window.onload = function () {
         this.state = 0;
     }
 
+    function TankMotionAnimation(tank){
+        this.tank=tank;
+        this.state = 0;
+    }
+    TankMotionAnimation.prototype={
+        init:function(){
+
+        },
+        next:function(){
+
+        }
+    }
+
     //动画时间轴
     var timeLine = function (window, undefined) {
-        var frameSet = [], mainTimer, timerState = 0;
+        var animationSet = [], mainTimer, timerState = 0;
 
-        function removeFrame(frame) {
-            var idx = frameSet.indexOf(frame);
+        function removeAnimation(animation) {
+            var idx = animationSet.indexOf(animation);
             if (idx != -1) {
-                frameSet.splice(idx, 1);
+                animationSet.splice(idx, 1);
                 return true;
             }
             else return false;
@@ -116,17 +129,17 @@ window.onload = function () {
             mainTimer = setInterval(function () {
                 var frame;
                 tick = +new Date() - beginTick;
-                for (var i = 0; i < frameSet.length; i++) {
-                    frame = frameSet[i];
+                for (var i = 0; i < animationSet.length; i++) {
+                    frame = animationSet[i];
                     if (typeof frame.next == 'function' && frame.state === 1) {
                         frame.next(tick, tick - prevTick);
                     }
                     else {
-                        frameSet.splice(i, 1);
+                        animationSet.splice(i, 1);
                         i--;
                     }
                 }
-                if (frameSet.length == 0) {
+                if (animationSet.length == 0) {
                     clearInterval(mainTimer);
                     timerState = 0;
                 }
@@ -135,36 +148,36 @@ window.onload = function () {
         }
 
         return {
-            addFrame: function (frame) {
+            addAnimation: function (frame) {
                 frame.state = 1;
-                if (frameSet.indexOf(frame) == -1) {
+                if (animationSet.indexOf(frame) == -1) {
                     frame.init();
-                    frameSet.push(frame);
+                    animationSet.push(frame);
                 }
                 if (timerState === 0) {
                     startTimer();
                 }
 
             },
-            removeFrame: removeFrame
+            removeAnimation: removeAnimation
         }
     }(window);
 
     var myTank = new Tank();
 
-    function GifFrame(target, duration) {
+    function GifAnimation(target, duration) {
         this.target = target;
         this.duration = duration;
         this.frames = [];
         this.idx = 0;
     }
 
-    GifFrame.prototype = {
+    GifAnimation.prototype = {
         init: function () {
             this.t = 0;
             this.idx = 0;
         },
-        addFrame: function (css) {
+        addKeyFrame: function (css) {
             this.frames.push(css);
 
         },
@@ -182,19 +195,20 @@ window.onload = function () {
         }
     };
 
-    var fireFlameFrame = new GifFrame(document.getElementById('fireFlame'), 800);
-    fireFlameFrame.addFrame("background-position:-151px 0px ;");
-    fireFlameFrame.addFrame("background-position:-302px 0px;");
-    fireFlameFrame.addFrame("background-position:0px -127px ;");
-    fireFlameFrame.addFrame("background-position:-151px -127px;");
-    fireFlameFrame.addFrame("background-position:-302px -127px ;");
-    fireFlameFrame.addFrame("background-position: 0px -254px;");
-    fireFlameFrame.addFrame("background-position: -151px -254px;");
-    fireFlameFrame.addFrame("background-position: -302px -254px;");
-    fireFlameFrame.addFrame("background-position: 0px -381px;");
-    fireFlameFrame.addFrame("background-position: -151px -381px;");
-    fireFlameFrame.addFrame("background-position: -302px -381px;");
-    fireFlameFrame.addFrame("background-position: -302px -381px;");
+
+    var fireFlameFrame = new GifAnimation(document.getElementById('fireFlame'), 800);
+    fireFlameFrame.addKeyFrame("background-position:-151px 0px ;");
+    fireFlameFrame.addKeyFrame("background-position:-302px 0px;");
+    fireFlameFrame.addKeyFrame("background-position:0px -127px ;");
+    fireFlameFrame.addKeyFrame("background-position:-151px -127px;");
+    fireFlameFrame.addKeyFrame("background-position:-302px -127px ;");
+    fireFlameFrame.addKeyFrame("background-position: 0px -254px;");
+    fireFlameFrame.addKeyFrame("background-position: -151px -254px;");
+    fireFlameFrame.addKeyFrame("background-position: -302px -254px;");
+    fireFlameFrame.addKeyFrame("background-position: 0px -381px;");
+    fireFlameFrame.addKeyFrame("background-position: -151px -381px;");
+    fireFlameFrame.addKeyFrame("background-position: -302px -381px;");
+    fireFlameFrame.addKeyFrame("background-position: -302px -381px;");
     var TankMoveFrame = new Frame(function () {
                 this.tank = myTank;
                 this.v = 0;
