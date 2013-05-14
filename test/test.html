@@ -3,42 +3,46 @@
 <head>
     <title></title>
     <style type="text/css">
-        body{
-            margin:0;
-            padding:0px;
+        body {
+            margin: 0;
+            padding: 0px;
         }
-        #recA{
-            position:absolute;
-            left:50px;
-            top:100px;
+
+        #recA {
+            position: absolute;
+            left: 50px;
+            top: 100px;
             width: 300px;
-            height:100px;
+            height: 100px;
             z-index: 1;
-            border:1px solid deepskyblue;
-            -webkit-transform:rotate(30deg);
+            border: 1px solid deepskyblue;
+            -webkit-transform: rotate(30deg);
         }
-        #recA2{
-            position:absolute;
-            left:50px;
-            top:100px;
+
+        #recA2 {
+            position: absolute;
+            left: 50px;
+            top: 100px;
             width: 300px;
-            height:100px;
+            height: 100px;
             z-index: 1;
-            border:1px solid deepskyblue;
-           /* -webkit-transform:rotate(20deg);*/
+            border: 1px solid deepskyblue;
+            /* -webkit-transform:rotate(20deg);*/
         }
-        #recB{
-            position:absolute;
-            left:350px;
-            top:350px;
+
+        #recB {
+            position: absolute;
+            left: 350px;
+            top: 350px;
             width: 100px;
-            height:200px;
+            height: 200px;
             z-index: 1;
-            border:1px solid deepskyblue;
-            -webkit-transform:rotate(65deg);
+            border: 1px solid deepskyblue;
+            -webkit-transform: rotate(65deg);
         }
-        canvas{
-            z-index:2;
+
+        canvas {
+            z-index: 2;
         }
 
     </style>
@@ -46,19 +50,173 @@
 <body>
 
 <div id='recA'></div>
-
+<div id='recA2'></div>
 <div id="recB"></div>
 <canvas id="cvs" width="800px" height="800px"></canvas>
 <script type="text/javascript">
-    var cvs=document.getElementById('cvs');
-    var ctx=cvs.getContext('2d');
-    document.body.onclick=function(){
-        ctx.moveTo(recA.getBoundingClientRect().left+recA.getBoundingClientRect().width/2,recA.getBoundingClientRect().top+recA.getBoundingClientRect().height/2);
-        ctx.lineTo(recB.getBoundingClientRect().left+recB.getBoundingClientRect().width/2,recB.getBoundingClientRect().top+recB.getBoundingClientRect().height/2);
-        ctx.stroke();
+    var cvs = document.getElementById('cvs');
+    var ctx = cvs.getContext('2d');
+    document.body.onclick = function () {
+        var reca = recA2.getBoundingClientRect();
+        /* ctx.moveTo(recA.getBoundingClientRect().left+recA.getBoundingClientRect().width/2,recA.getBoundingClientRect().top+recA.getBoundingClientRect().height/2);
+         ctx.lineTo(recB.getBoundingClientRect().left+recB.getBoundingClientRect().width/2,recB.getBoundingClientRect().top+recB.getBoundingClientRect().height/2);
+         ctx.stroke();*/
+
+      /* window.r=new Rectangle(recA,30);
+        var l= r.lineSet[3];
+        var x1=50,y1= l.getY(x1),x2=500,y2= l.getY(x2);
+        console.log(x1,y1,x2,y2);
+         ctx.moveTo(x1,y1);
+         ctx.lineTo(x2,y2);
+         ctx.stroke();*/
+        window.r=new Rectangle(recA,30);
+       // window.l=new Line(r.pointSet[2].x, r.pointSet[2].y,120);
+        //var l2=new Line(r.pointSet[0].x, r.pointSet[0].y,60);
+        /*ctx.moveTo(r.pointSet[0].x, r.pointSet[0].y);
+        ctx.lineTo(500,500);*/
+        //ctx.stroke();
+        //l.draw(10,300,ctx);
+        //l2.draw(50,300,ctx);
+        var l= r.lineSet[1];
+        //l.draw(50,500,ctx);
+        console.time('t1');
+        for(var i=0;i<1000;i++){
+            r.refresh(30);
+        }
+        console.timeEnd('t1');
     };
 
+    function Rectangle(element,angle) {
+        this.element = element;
+        this.pointSet = [];
+        this.lineSet = [];
+        this.refresh(angle);
+    }
+    Rectangle.prototype = {
+        refresh: function (angle) {
+            var left = this.element.offsetLeft,
+                    top = this.element.offsetTop,
+                    width = this.element.offsetWidth,
+                    height = this.element.offsetHeight,
+                    x2 = left + width,
+                    x3 = left + width,
+                    y3 = top + height,
+                    y4 = top + height,
+                    a = left + width / 2,
+                    b = top + height / 2,
+                    θ = angle * Math.PI / 180,
+                    cos=Math.cos(θ),
+                    sin=Math.sin(θ),
+                    p = {};
+            angle=angle||0;
+            p.x = (left - a) * cos - (top - b) * sin + a;
+            p.y = (left - a) * sin + (top - b) * cos + b;
+            this.pointSet[0] = p;
+            p = {};
+            p.x = (x2 - a) * cos - (top - b) * sin + a;
+            p.y = (x2 - a) * sin + (top - b) * cos + b;
 
+            this.pointSet[1] = p;
+            p = {};
+            p.x = (x3 - a) * cos - (y3 - b) * sin + a;
+            p.y = (x3 - a) * sin + (y3 - b) * cos + b;
+            this.pointSet[2] = p;
+            p = {};
+            p.x = (left - a) * cos - (y4 - b) * sin + a;
+            p.y = (left - a) * sin + (y4 - b) * cos + b;
+            this.pointSet[3] = p;
+            this.angle=angle;
+            if (angle % 90 !== 0) {
+                var tempLine1 = null, tempLine2 = null,l;
+                for (var i = 0; i < 4; i++) {
+                    l = new Line(this.pointSet[i].x, this.pointSet[i].y, this.pointSet[(i + 1) % 4].x, this.pointSet[(i + 1) % 4].y);
+                    if (l.a < 0) {
+                        if (tempLine1 === null) {
+                            tempLine1 = l;
+                        }
+                        else {
+                            if (l.b < tempLine1.b) {
+                                this.lineSet[0] = l;
+                                this.lineSet[2] = tempLine1
+                            }
+                            else {
+                                this.lineSet[2] = l;
+                                this.lineSet[0] = tempLine1
+                            }
+                        }
+
+                    }
+                    else if (l.a > 0) {
+                        if (tempLine2 === null) {
+                            tempLine2 = l;
+                        }
+                        else {
+                            if (l.b < tempLine2.b) {
+                                this.lineSet[1] = l;
+                                this.lineSet[3] = tempLine2
+                            }
+                            else {
+                                this.lineSet[3] = l;
+                                this.lineSet[1] = tempLine2
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+    }
+
+    function Line(x1, y1, x2, y2) {
+        if(arguments.length==4){
+        this.a = (y2 - y1) / (x2 - x1);
+        if (this.a === Infinity) {
+            y1=0;
+            this.a = 1;
+        }
+        this.b =  y1 - this.a * x1;
+        }
+        else if(arguments.length==3){
+            if(Math.abs(x2%180)===90){
+
+                this.a=1;
+                this.b=-x1;
+            }
+            else {
+                this.a=Math.tan(Math.PI*x2/180);
+                this.b=y1-this.a*x1;
+            }
+        }
+        else {
+            throw new Error('constructor Line need at least 4 arguments!');
+        }
+    }
+    Line.prototype = {
+        contains: function (x, y) {
+            var v = this.a * x + this.b * y;
+            if (v === this.c) {
+                return 0;
+            }
+            else if (v > this.c) {
+                return 1;
+            }
+            else {
+                return -1;
+            }
+        },
+        getY: function (x) {
+            return this.a*x+this.b
+        },
+        getX: function (y) {
+            return (ty-this.b) / this.a;
+        },
+        draw:function(x1,x2,ctx){
+            var y1= this.getY(x1),y2= this.getY(x2);
+            ctx.moveTo(x1,y1);
+            ctx.lineTo(x2,y2);
+            ctx.stroke();
+        }
+    }
 </script>
 </body>
 </html>
