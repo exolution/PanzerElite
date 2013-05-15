@@ -5,7 +5,7 @@
  * Time: 下午5:09
  */
 window.onload = function () {
-
+    var mainContainer=document.getElementById('mainContainer');
     function Tank(x, y) {
         if (!this.tankEl) {
             var body = document.createElement('div'),
@@ -88,12 +88,7 @@ window.onload = function () {
             this.tankEl.top.style.cssText = 'left:' + (this.x - 112) + 'px;top: ' + (this.y + 22) + 'px;-webkit-transform:rotate(' + this.turretAngle + 'deg)';
         }
     };
-    function Frame(init, fn) {
-        init && init.call(this);
-        this.init = init;
-        this.next = fn;
-        this.state = 0;
-    }
+
 
     function TankMotionAnimation(tank){
         this.tank=tank;
@@ -101,13 +96,99 @@ window.onload = function () {
     }
     TankMotionAnimation.prototype={
         init:function(){
-
+            this.v = 0;
         },
-        next:function(){
+        next: function (tick, interval) {
+            var d, x, y, acl = this.tank.acl;
+            //console.log(tick,interval,this.v,acl,this.tank.velocity);
+            if (this.v * (acl >= 0 ? 1 : -1) < this.tank.velocity) {
+                this.v = this.v + acl * interval;
+            }
+            else {
+                this.tank.acl = 0;
+                this.v = this.tank.velocity;
+            }
+            if (this.v == 0 && this.tank.turnVelocity == 0 && this.tank.turretTurnVelocity == 0) {
+                this.state = 0;
+            }
+            this.tank.angle_add += this.tank.turnVelocity * interval / 1000 * (this.v >= 0 ? 1 : -1);
+            this.tank.turretAngle_add += this.tank.turretTurnVelocity * interval / 1000;
+            d = this.v * interval / 1000;
+            x = -Math.cos(Math.PI * this.tank.angle / 180) * d;
+            y = -Math.sin(Math.PI * this.tank.angle / 180) * d;
+            this.tank.x_add += x;
+            this.tank.y_add += y;
+            this.tank.draw();
+        }
+    };
+    //炮弹
+    function Shell(velocity,dst){
+        this.velocity=velocity;
+        this.dst=dst;
+    }
+    Shell.prototype={
+        constructor:Shell,
+        hit:function(target){
 
         }
     }
+    function BallisticAnimation(){
+        this.shells=[];
+        this.state=0;
+    }
+    BallisticAnimation.prototype={
+        addShell:function(x,y,angle,shell){
 
+            if(this.state===0)timeLine.addAnimation(this);
+            var div=document.createElement('div');
+            div.className='shell';
+            mainContainer.appendChild(div);
+            div.style.cssText='left:'+x+'px;top:'+y+'px;-webkit-transform:rotate('+(angle-90)+'deg);';
+            this.shells.push({x:x,y:y,dst:shell.dst,angle:angle,shell:shell,el:div,x_add:0,y_add:0});
+        },
+        next:function(tick,interval){
+            var s, i, x, y,left,top,flag;
+            for(i=0;i<this.shells.length;i++){
+                o=this.shells[i];
+                d= o.shell.velocity*interval/1000;
+                left=parseInt(o.el.style.left);
+                top=parseInt(o.el.style.top);
+                flag=false;
+                //console.log(o.dst,d);
+                //console.log(parseInt(o.el.style.left),Math.cos(Math.PI/180*o.angle));
+                o.x_add+=d*-Math.cos(Math.PI/180*o.angle);
+                o.y_add+=d*-Math.sin(Math.PI/180*o.angle);
+                if (Math.abs(o.x_add) > 1) {
+                    left+=o.x_add|0;
+                    o.x_add -= o.x_add | 0;
+                    flag=true;
+                }
+                if (Math.abs(o.y_add) > 1) {
+                    top+=o.y_add|0;
+                    o.y_add -= o.y_add | 0;
+                    flag=true;
+                }
+                if(flag){
+                    o.el.style.cssText='left:'+left+'px;top:'+top+'px;-webkit-transform:rotate('+ (o.angle-90)+'deg);';
+
+                }
+                o.dst-=d;
+                if(o.dst<=0){
+                    this.shells.splice(i,1);
+                    i--;
+                    if(this.shells.length==0){
+                        this.state=0;
+                    }
+                }
+            }
+        },
+        init:function(){
+
+        }
+
+    };
+    var ballisticAnimation=new BallisticAnimation();
+    var S88mm=new Shell(3000,2500);
     //动画时间轴
     var timeLine = function (window, undefined) {
         var animationSet = [], mainTimer, timerState = 0;
@@ -164,7 +245,7 @@ window.onload = function () {
     }(window);
 
     var myTank = new Tank();
-
+    var myTankMotionAnimation=new TankMotionAnimation(myTank)
     function GifAnimation(target, duration) {
         this.target = target;
         this.duration = duration;
@@ -209,33 +290,8 @@ window.onload = function () {
     fireFlameFrame.addKeyFrame("background-position: -151px -381px;");
     fireFlameFrame.addKeyFrame("background-position: -302px -381px;");
     fireFlameFrame.addKeyFrame("background-position: -302px -381px;");
-    var TankMoveFrame = new Frame(function () {
-                this.tank = myTank;
-                this.v = 0;
-            },
-            function (tick, interval) {
-                var d, x, y, acl = this.tank.acl;
-                //console.log(tick,interval,this.v,acl,this.tank.velocity);
-                if (this.v * (acl >= 0 ? 1 : -1) < this.tank.velocity) {
-                    this.v = this.v + acl * interval;
-                }
-                else {
-                    this.tank.acl = 0;
-                    this.v = this.tank.velocity;
-                }
-                if (this.v == 0 && this.tank.turnVelocity == 0 && this.tank.turretTurnVelocity == 0) {
-                    this.state = 0;
-                }
-                this.tank.angle_add += this.tank.turnVelocity * interval / 1000 * (this.v >= 0 ? 1 : -1);
-                this.tank.turretAngle_add += this.tank.turretTurnVelocity * interval / 1000;
-                d = this.v * interval / 1000;
-                x = -Math.cos(Math.PI * this.tank.angle / 180) * d;
-                y = -Math.sin(Math.PI * this.tank.angle / 180) * d;
-                this.tank.x_add += x;
-                this.tank.y_add += y;
-                this.tank.draw();
-            })
-        ;
+
+
 
     function logs() {
         var lcd = document.getElementById('lcd');
@@ -249,61 +305,62 @@ window.onload = function () {
         var event = evt || window.event;
         if (!keyState[event.keyCode]) {
             switch (event.keyCode) {
-                case 75:
+                case 32:
                     var barrel = document.getElementById('tank-barrel'),
                         aimField=document.getElementById('aimField');
                     aimField.style.display='none';
                     if (barrel.className == '') {
                         barrel.className = 'barrel-fire';
-                        timeLine.addFrame(fireFlameFrame);
+                        timeLine.addAnimation(fireFlameFrame);
+                        ballisticAnimation.addShell(100,100,190,S88mm);
                         setTimeout(function () {
                             barrel.className = '';
                             aimField.style.display='block';
-                        }, 3000);
+                        }, 1000);
                     }
                     break;
                 case 87:
                     myTank.velocity = myTank.maxForwardVelocity;
                     myTank.acl = myTank.maxForwardAcl;
-                    timeLine.addFrame(TankMoveFrame);
+                    timeLine.addAnimation(myTankMotionAnimation);
                     keyState[event.keyCode] = 1;
                     evt.preventDefault();
                     break;
                 case 83:
                     myTank.velocity = myTank.maxBackVelocity;
                     myTank.acl = myTank.maxBackAcl;
-                    timeLine.addFrame(TankMoveFrame);
+                    timeLine.addAnimation(myTankMotionAnimation);
                     keyState[event.keyCode] = 1;
                     break;
                 case 65:
                     //myTank.velocity = myTank.maxForwardVelocity;
                     myTank.turnVelocity = -10;
                     keyState[event.keyCode] = 1;
-                    timeLine.addFrame(TankMoveFrame);
+                    timeLine.addAnimation(myTankMotionAnimation);
                     break;
                 case 68:
                     // myTank.velocity = myTank.maxForwardVelocity;
                     myTank.turnVelocity = 40;
-                    timeLine.addFrame(TankMoveFrame);
+                    timeLine.addAnimation(myTankMotionAnimation);
                     keyState[event.keyCode] = 1;
                     break;
                 case 74:
                     myTank.turretTurnVelocity = -20;
                     //myTank.velocity = myTank.maxForwardVelocity;
-                    timeLine.addFrame(TankMoveFrame);
+                    timeLine.addAnimation(myTankMotionAnimation);
                     keyState[event.keyCode] = 1;
                     break;
-                case 76:
+                case 75:
                     myTank.turretTurnVelocity = 50;
                     // myTank.velocity = myTank.maxForwardVelocity;
-                    timeLine.addFrame(TankMoveFrame);
+                    timeLine.addAnimation(myTankMotionAnimation);
                     keyState[event.keyCode] = 1;
                     break;
 
             }
         }
     };
-    new Tank(200,300);
+    //new Tank(200,300);
     document.onkeyup = function (evt) {
         var event = evt || window.event;
         if (keyState[event.keyCode] == 1) {
@@ -341,7 +398,7 @@ window.onload = function () {
                     }
                     keyState[event.keyCode] = 0;
                     break;
-                case 76:
+                case 75:
                     if (!keyState[74]) {
                         myTank.turretTurnVelocity = -0;
                     }
